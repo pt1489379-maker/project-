@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  
+  // Relations
+  documents Document[]
+  messages  Message[]
+}
+
+model Document {
+  id        String    @id @default(uuid())
+  title     String
+  fileUrl   String
+  fileType  String
+  createdAt DateTime  @default(now())
+  
+  // Relations
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  messages  Message[]
+  summaries Summary[]
+  quizzes   Quiz[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  role       String   // "user" or "assistant"
+  content    String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
+}
+
+model Summary {
+  id         String   @id @default(uuid())
+  content    String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+}
+
+model Quiz {
+  id         String   @id @default(uuid())
+  question   String
+  options    String[] // Array of strings for choices
+  answer     String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id])
+}
